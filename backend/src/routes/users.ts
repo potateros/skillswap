@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { UserService } from '../services/UserService';
 import { SkillService } from '../services/SkillService';
 import { validationMiddleware } from '../middleware/validation';
@@ -16,7 +16,7 @@ const skillService = new SkillService();
 router.post('/login', 
   authRateLimitConfig,
   validationMiddleware(LoginUserDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.loginUser(req.body);
     res.json(user);
   })
@@ -26,7 +26,7 @@ router.post('/login',
 router.post('/', 
   authRateLimitConfig,
   validationMiddleware(CreateUserDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
   })
@@ -34,7 +34,7 @@ router.post('/',
 
 // Get all users
 router.get('/', 
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const users = await userService.getAllUsers();
     res.json(users);
   })
@@ -42,7 +42,7 @@ router.get('/',
 
 // Get user by ID
 router.get('/:userId',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
@@ -56,7 +56,7 @@ router.get('/:userId',
 // Update user profile
 router.put('/:userId',
   validationMiddleware(UpdateUserDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
@@ -69,7 +69,7 @@ router.put('/:userId',
 
 // Get user skills
 router.get('/:userId/skills',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
@@ -97,7 +97,7 @@ router.get('/:userId/skills',
 // Add skill to user
 router.post('/:userId/skills',
   validationMiddleware(CreateUserSkillDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
@@ -110,7 +110,7 @@ router.post('/:userId/skills',
 
 // Search users by skill
 router.get('/search/by-skill',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { skillName, type } = req.query;
     
     if (!skillName || typeof skillName !== 'string') {
@@ -130,14 +130,14 @@ router.get('/search/by-skill',
 // For now, keeping them simple without full implementation
 router.post('/:userId/exchange-requests',
   validationMiddleware(CreateSkillExchangeRequestDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // TODO: Implement with ExchangeRequestService
     res.status(501).json({ error: 'Exchange requests not implemented yet' });
   })
 );
 
 router.get('/:userId/exchange-requests',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // TODO: Implement with ExchangeRequestService
     res.status(501).json({ error: 'Exchange requests not implemented yet' });
   })
@@ -145,7 +145,7 @@ router.get('/:userId/exchange-requests',
 
 router.put('/:userId/exchange-requests/:requestId',
   validationMiddleware(UpdateSkillExchangeRequestDTO),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // TODO: Implement with ExchangeRequestService
     res.status(501).json({ error: 'Exchange requests not implemented yet' });
   })

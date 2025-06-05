@@ -1,12 +1,41 @@
-# React + Vite
+# SkillSwap Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+React application for the SkillSwap peer-to-peer skill exchange platform. Built with Vite, Tailwind CSS, and modern React patterns.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **React 19** with hooks and functional components
+- **Vite** for fast development and optimized builds
+- **Tailwind CSS** for utility-first styling
+- **Fetch API** for backend communication
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Key Features
+- User registration and login
+- Skill portfolio management (offer/seek skills)
+- Real-time skill search and filtering
+- Connection requests between users
+- Responsive design for all devices
 
-## Expanding the ESLint configuration
+## Development Setup
+```bash
+npm install
+npm run dev
+# Opens at http://localhost:5173
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Build & Deploy
+```bash
+npm run build      # Production build
+npm run preview    # Preview build locally
+```
+
+## Available Scripts
+- `npm run dev` - Development server with hot reload
+- `npm run build` - Production build
+- `npm run lint` - Code quality check
+
+## Architecture
+- **Components**: Modular React components for each feature
+- **State Management**: React hooks for local state
+- **API Integration**: Centralized fetch calls with error handling
+- **Styling**: Tailwind CSS with consistent design system

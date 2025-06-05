@@ -11,6 +11,11 @@ import logger from './utils/logger';
 import userRoutes from './routes/users';
 import skillRoutes from './routes/skills';
 
+// Import JavaScript routes (temporary until TypeScript conversion)
+const timeBankingRoutes = require('../routes/timebanking');
+const reviewRoutes = require('../routes/reviews');
+const matchingRoutes = require('../routes/matching');
+
 // Load environment variables
 dotenv.config();
 
@@ -44,6 +49,9 @@ app.get('/', (req, res) => {
 // API routes
 app.use('/api/users', userRoutes);
 app.use('/api/skills', skillRoutes);
+app.use('/api/timebanking', timeBankingRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/matching', matchingRoutes);
 
 // Test DB connection endpoint
 app.get('/api/health', async (req, res) => {

@@ -29,7 +29,7 @@ export class UserService {
       logger.info('User created successfully', { userId: savedUser.id, email: savedUser.email });
       return savedUser;
     } catch (error) {
-      if (error.statusCode) throw error;
+      if ((error as any).statusCode) throw error;
       logger.error('Error creating user', error);
       throw createAppError('Failed to create user', 500);
     }
@@ -53,7 +53,7 @@ export class UserService {
       logger.info('User logged in successfully', { userId: user.id, email: user.email });
       return user;
     } catch (error) {
-      if (error.statusCode) throw error;
+      if ((error as any).statusCode) throw error;
       logger.error('Error during login', error);
       throw createAppError('Login failed', 500);
     }
@@ -82,7 +82,7 @@ export class UserService {
 
       return user;
     } catch (error) {
-      if (error.statusCode) throw error;
+      if ((error as any).statusCode) throw error;
       logger.error('Error fetching user', error);
       throw createAppError('Failed to fetch user', 500);
     }
@@ -98,7 +98,7 @@ export class UserService {
       logger.info('User updated successfully', { userId: updatedUser.id });
       return updatedUser;
     } catch (error) {
-      if (error.statusCode) throw error;
+      if ((error as any).statusCode) throw error;
       logger.error('Error updating user', error);
       throw createAppError('Failed to update user', 500);
     }

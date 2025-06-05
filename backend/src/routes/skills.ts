@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { SkillService } from '../services/SkillService';
 import { asyncHandler } from '../middleware/errorHandler';
 
@@ -7,7 +7,7 @@ const skillService = new SkillService();
 
 // Get all skills
 router.get('/', 
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const skills = await skillService.getAllSkills();
     
     // Transform to match frontend expectations
@@ -26,7 +26,7 @@ router.get('/',
 
 // Get all skill categories
 router.get('/categories',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const categories = await skillService.getAllCategories();
     res.json(categories);
   })
@@ -34,7 +34,7 @@ router.get('/categories',
 
 // Get skills by category
 router.get('/by-category/:categoryId',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const categoryId = parseInt(req.params.categoryId);
     if (isNaN(categoryId)) {
       return res.status(400).json({ error: 'Invalid category ID' });
@@ -56,7 +56,7 @@ router.get('/by-category/:categoryId',
 
 // Create new skill - simplified for now
 router.post('/',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // TODO: Implement proper skill creation with validation
     res.status(501).json({ error: 'Skill creation not implemented yet' });
   })
@@ -64,7 +64,7 @@ router.post('/',
 
 // Create new skill category - simplified for now
 router.post('/categories',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // TODO: Implement proper category creation with validation
     res.status(501).json({ error: 'Category creation not implemented yet' });
   })

@@ -117,7 +117,7 @@ export class SkillService {
       
       return savedUserSkill;
     } catch (error) {
-      if (error.statusCode) throw error;
+      if ((error as any).statusCode) throw error;
       logger.error('Error adding user skill', error);
       throw createAppError('Failed to add skill to user', 500);
     }

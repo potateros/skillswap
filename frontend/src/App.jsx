@@ -4,6 +4,9 @@ import UserLogin from './components/UserLogin';
 import SkillsManager from './components/SkillsManager';
 import UserCard from './components/UserCard';
 import SearchFilters from './components/SearchFilters';
+import TimeBankingDashboard from './components/TimeBankingDashboard';
+import ReviewsManager from './components/ReviewsManager';
+import SmartMatching from './components/SmartMatching';
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -18,7 +21,7 @@ function App() {
   const [showSkillsManager, setShowSkillsManager] = useState(false);
   const [currentUserSkills, setCurrentUserSkills] = useState([]);
   const [notification, setNotification] = useState(null);
-  const [activeTab, setActiveTab] = useState('discover'); // 'discover', 'profile', 'requests'
+  const [activeTab, setActiveTab] = useState('discover'); // 'discover', 'smart-match', 'profile', 'timebank', 'reviews', 'requests'
   const [userRequests, setUserRequests] = useState([]);
   const API_BASE_URL = '/api';
 
@@ -337,10 +340,10 @@ function App() {
           {/* Navigation Tabs */}
           {currentUser && (
             <nav className="mt-4 border-b border-gray-200">
-              <div className="flex space-x-8">
+              <div className="flex space-x-8 overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('discover')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === 'discover'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -349,8 +352,18 @@ function App() {
                   Discover
                 </button>
                 <button
+                  onClick={() => setActiveTab('smart-match')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === 'smart-match'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  🤖 Smart Match
+                </button>
+                <button
                   onClick={() => setActiveTab('profile')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === 'profile'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -359,14 +372,34 @@ function App() {
                   My Profile
                 </button>
                 <button
+                  onClick={() => setActiveTab('timebank')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === 'timebank'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  💰 Time Bank
+                </button>
+                <button
+                  onClick={() => setActiveTab('reviews')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === 'reviews'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  ⭐ Reviews
+                </button>
+                <button
                   onClick={() => setActiveTab('requests')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === 'requests'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  Requests ({userRequests.length})
+                  📬 Requests ({userRequests.length})
                 </button>
               </div>
             </nav>
@@ -524,6 +557,40 @@ function App() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Smart Matching Tab */}
+        {currentUser && activeTab === 'smart-match' && (
+          <div className="max-w-6xl mx-auto">
+            <SmartMatching 
+              currentUser={currentUser} 
+              onSendRequest={(user) => {
+                // Enhanced request handler that could open a modal for skill exchange
+                console.log('Connecting with user:', user);
+                // For now, show notification
+                showNotification(`Feature coming soon: Direct skill exchange with ${user.name}!`, 'info');
+              }}
+            />
+          </div>
+        )}
+
+        {/* Time Banking Tab */}
+        {currentUser && activeTab === 'timebank' && (
+          <div className="max-w-4xl mx-auto">
+            <TimeBankingDashboard 
+              currentUser={currentUser}
+              onUpdateCredits={(newBalance) => {
+                setCurrentUser(prev => ({ ...prev, time_credits: newBalance }));
+              }}
+            />
+          </div>
+        )}
+
+        {/* Reviews Tab */}
+        {currentUser && activeTab === 'reviews' && (
+          <div className="max-w-4xl mx-auto">
+            <ReviewsManager currentUser={currentUser} />
           </div>
         )}
 

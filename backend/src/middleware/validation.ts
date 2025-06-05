@@ -23,10 +23,11 @@ export function validationMiddleware<T extends object>(
           path: req.path 
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Validation failed',
           details: errorMessages,
         });
+        return;
       }
 
       req.body = dto;
@@ -34,6 +35,7 @@ export function validationMiddleware<T extends object>(
     } catch (error) {
       logger.error('Validation middleware error', error);
       res.status(500).json({ error: 'Internal server error' });
+      return;
     }
   };
 }

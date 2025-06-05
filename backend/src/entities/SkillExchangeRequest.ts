@@ -11,7 +11,7 @@ import {
 import { IsNotEmpty, IsOptional, IsIn, IsInt, Min } from 'class-validator';
 import { User } from './User';
 import { Skill } from './Skill';
-import { UserReview } from './UserReview';
+import { Review } from './Review';
 
 export enum RequestStatus {
   PENDING = 'pending',
@@ -81,6 +81,7 @@ export class SkillExchangeRequest {
   @JoinColumn({ name: 'skill_requested_id' })
   skill_requested: Skill;
 
-  @OneToMany(() => UserReview, review => review.exchange_request)
-  reviews: UserReview[];
+  // Note: Reviews are now independent of exchange requests
+  // @OneToMany(() => Review, review => review.exchange_request)
+  // reviews: Review[];
 }

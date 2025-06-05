@@ -12,7 +12,8 @@ import { IsEmail, IsNotEmpty, IsOptional, Length } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 import { UserSkill } from './UserSkill';
 import { SkillExchangeRequest } from './SkillExchangeRequest';
-import { UserReview } from './UserReview';
+import { TimeTransaction } from './TimeTransaction';
+import { Review } from './Review';
 
 @Entity('users')
 export class User {
@@ -65,11 +66,14 @@ export class User {
   @OneToMany(() => SkillExchangeRequest, request => request.provider)
   received_requests: SkillExchangeRequest[];
 
-  @OneToMany(() => UserReview, review => review.reviewer)
-  reviews_given: UserReview[];
+  @OneToMany(() => TimeTransaction, transaction => transaction.user)
+  timeTransactions: TimeTransaction[];
 
-  @OneToMany(() => UserReview, review => review.reviewee)
-  reviews_received: UserReview[];
+  @OneToMany(() => Review, review => review.reviewer)
+  reviewsGiven: Review[];
+
+  @OneToMany(() => Review, review => review.reviewee)
+  reviewsReceived: Review[];
 
   @BeforeInsert()
   @BeforeUpdate()
