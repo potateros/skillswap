@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { initializeDatabase, AppDataSource } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
-import { rateLimitConfig, helmetConfig, sanitizeInput } from './middleware/security';
+import { helmetConfig, sanitizeInput } from './middleware/security';
 import { authMiddleware } from './middleware/auth';
 import logger from './utils/logger';
 
@@ -27,7 +27,6 @@ const startTime = new Date();
 
 // Security middleware
 app.use(helmetConfig);
-app.use(rateLimitConfig);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,

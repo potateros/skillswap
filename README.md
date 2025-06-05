@@ -42,24 +42,15 @@ cd backend && npm run dev
 
 Create `.env` in backend directory (optional - defaults provided):
 ```env
-# Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/skillswap
 DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=postgres
+DB_USERNAME=user
 DB_PASSWORD=password
-DB_DATABASE=skillswap
-
-# Server
+DB_NAME=skill_exchange
 PORT=3000
 NODE_ENV=development
-
-# Session Security
-SESSION_SECRET=your-secret-key-here
-
-# Rate Limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=1000
+FRONTEND_URL=http://localhost:5173
+LOG_LEVEL=info
 ```
 
 ## Tech Stack
