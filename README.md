@@ -2,76 +2,95 @@
 
 ## Overview
 
-SkillSwap is a peer-to-peer skill exchange platform that connects people to teach and learn skills within their communities. Built with modern web technologies, it enables users to offer skills they know and find others to learn from, creating a community-driven learning ecosystem.
-
-## Key Features
-
-- **User Authentication**: Secure registration/login with bcrypt password hashing
-- **Skill Portfolio**: Users can offer skills (with proficiency levels) and seek skills to learn
-- **Skill Discovery**: Search by skill name, browse 100+ skills across 10 categories
-- **Connection Requests**: Send/receive skill exchange requests with messaging
-- **Time Banking**: Credit system foundation for skill exchanges
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-
-## Tech Stack
-
-- **Backend**: TypeScript + Express + PostgreSQL + TypeORM
-- **Frontend**: React 19 + Vite + Tailwind CSS
-- **Security**: bcrypt, Helmet, CORS, rate limiting, input validation
-- **DevOps**: Docker + Docker Compose, multi-stage builds
-- **Logging**: Winston structured logging
+SkillSwap is a peer-to-peer skill exchange platform that connects people to teach and learn skills within their communities. Built with modern web technologies, it enables users to offer skills they know and find others to learn from, creating a community-driven learning ecosystem with persistent authentication and comprehensive skill exchange features.
 
 ## Setup Instructions
 
-### Prerequisites
-- Node.js 18+ & npm
-- Docker & Docker Compose
-- Git
+### Install Dependencies
 
-### Quick Start
+Frontend
+
 ```bash
-# 1. Clone repository
-git clone <repository-url> skillswap
-cd skillswap
+cd frontend && npm install
+```
 
-# 2. Start database
+Backend
+
+```bash
+cd backend && npm install
+cp .env.example .env # Setup env file
+```
+
+Database
+
+```bash
 docker-compose -f docker-compose.db.yml up -d
+docker ps  # Should see postgres container
 
-# 3. Setup backend
-cd backend
-cp .env.example .env
-npm install
-npm run dev &    # Runs at http://localhost:3000
-
-# 4. Seed database (recommended)
-npm run db:seed-ts
-
-# 5. Setup frontend (new terminal)
-cd ../frontend
-npm install
-npm run dev      # Opens at http://localhost:5173
+# Seed DB
+npm run db:seed
 ```
 
-### Full Docker Setup (Alternative)
+Start Frontend and Backend
+
 ```bash
-# Run everything in Docker
-docker-compose up -d
-# Access at http://localhost:5173
+cd frontend && npm run dev
+cd backend && npm run dev
 ```
 
-## Architecture Decisions
+### Environment Variables
 
-### Key Design Choices
-- **TypeScript**: Ensures type safety and better developer experience
-- **TypeORM**: Provides robust database abstraction with entity relationships
-- **bcrypt**: Industry standard for password hashing (12 salt rounds)
-- **Rate Limiting**: Prevents abuse (5 auth requests, 100 general requests per 15min)
-- **Service Layer**: Separates business logic from API routes
-- **DTO Validation**: Comprehensive input validation with class-validator
-- **Multi-stage Docker**: Optimized production builds with security best practices
+Create `.env` in backend directory (optional - defaults provided):
+```env
+# Database
+DATABASE_URL=postgresql://postgres:password@localhost:5432/skillswap
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=skillswap
 
-### Database Design
-- **Skills as Global Registry**: Prevents duplication, enables skill discovery
-- **User-Skill Many-to-Many**: Flexible relationship with offer/seek types
-- **Time Credits**: Foundation for future skill exchange economy
-- **Proficiency Levels**: Enables skill matching by experience level
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Session Security
+SESSION_SECRET=your-secret-key-here
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=1000
+```
+
+## Tech Stack
+
+- Frontend
+  - React, Vite, Tailwind, Client-side Routing
+  - Cookies for session management
+- Backend
+  - Typescript, Express, TypeORM, PostgreSQL
+  - Additional middleware for security (Helmet, rate limiting), session management
+  - Docker & Docker Compose
+
+## Project Plan & Future Milestones
+
+- Better developer experience
+  - Implement CI/CD for rapid testing and deployment
+  - Add better caching (Redis)
+- Improved user experience
+  - JWT authentication, password reset, email verification
+	- Profile photos, skill badges, activity timeline
+	- Advanced search filters, AI skill suggestions
+	- Save favourites
+- Better communications & notifications
+	- In-app messaging, real-time notifications, file sharing
+	-	Calendar integration, availability display, meeting proposals, reminders
+- Community and achievements/competitions?
+	-	Promotional bulk pricing, history, rewards
+	-	Skill groups, events, forums, mentorship programs?
+	-	Achievements, leaderboards, skill challenges, progress tracking
+- External partnerships?
+	-	Organization accounts, team management, learning paths, certifications
+	-	Multi-tenant support, rate limiting, DB optimization, CDN integration
+	-	Premium/pro accounts, marketplace links, corporate partnerships
+  - More fleshed-out course series?
