@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "bun": "^1.2.15",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "3"

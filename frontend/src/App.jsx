@@ -30,6 +30,43 @@ function App() {
     setTimeout(() => setNotification(null), 5000);
   };
 
+  const checkCurrentUser = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const user = await response.json();
+        setCurrentUser(user);
+        return true;
+      }
+    } catch (error) {
+      console.error('Error checking current user:', error);
+    }
+    return false;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/users/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setCurrentUser(null);
+      setCurrentUserSkills([]);
+      setUserRequests([]);
+      setActiveTab('discover');
+      showNotification('Logged out successfully');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      // Clear user state even if request fails
+      setCurrentUser(null);
+      setCurrentUserSkills([]);
+      setUserRequests([]);
+      setActiveTab('discover');
+    }
+  };
+
   const processSearchResults = (results) => {
     if (!results || results.length === 0) {
       return [];
@@ -94,23 +131,9 @@ function App() {
 
   const fetchUsersWithSkills = async () => {
     try {
-      const usersResponse = await fetch(`${API_BASE_URL}/users`);
-      if (!usersResponse.ok) throw new Error(`Failed to fetch users: ${usersResponse.status}`);
-      const usersData = await usersResponse.json();
-
-      const usersWithSkills = await Promise.all(
-        usersData.map(async (user) => {
-          const skillsResponse = await fetch(`${API_BASE_URL}/users/${user.id}/skills`);
-          if (!skillsResponse.ok) {
-            console.error(`Failed to fetch skills for user ${user.id}: ${skillsResponse.status}`);
-            return { ...user, skills_offer: [], skills_seek: [] };
-          }
-          const skillsData = await skillsResponse.json();
-          const skills_offer = skillsData.filter(s => s.type === 'offer');
-          const skills_seek = skillsData.filter(s => s.type === 'seek');
-          return { ...user, skills_offer, skills_seek };
-        })
-      );
+      const response = await fetch(`${API_BASE_URL}/users/with-skills`);
+      if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
+      const usersWithSkills = await response.json();
       setUsers(usersWithSkills);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -120,7 +143,9 @@ function App() {
 
   const fetchCurrentUserSkills = async (userId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/skills`);
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/skills`, {
+        credentials: 'include'
+      });
       if (response.ok) {
         const skills = await response.json();
         setCurrentUserSkills(skills);
@@ -132,7 +157,9 @@ function App() {
 
   const fetchUserRequests = async (userId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/exchange-requests`);
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/exchange-requests`, {
+        credentials: 'include'
+      });
       if (response.ok) {
         const requests = await response.json();
         setUserRequests(requests);
@@ -143,12 +170,18 @@ function App() {
   };
 
   useEffect(() => {
-    async function fetchData() {
+    async function initializeApp() {
       setLoading(true);
+      
+      // Check if user is already logged in via cookie
+      await checkCurrentUser();
+      
+      // Fetch users regardless of login status
       await fetchUsersWithSkills();
+      
       setLoading(false);
     }
-    fetchData();
+    initializeApp();
   }, []);
 
   useEffect(() => {
@@ -165,6 +198,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(userData),
       });
 
@@ -190,6 +224,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(loginData),
       });
 
@@ -226,6 +261,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           providerId: providerId,
           skillRequestedId: skillId,
@@ -252,6 +288,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ status }),
       });
 
@@ -280,12 +317,6 @@ function App() {
 
   const usersToDisplay = searchResults !== null ? searchResults : users;
   const displayMessage = searchResults !== null && searchResults.length === 0 ? "No users found matching your search." : "No users found.";
-  const featuredSkills = ['JavaScript', 'Cooking', 'Yoga', 'Graphic Design', 'Python'];
-
-  const handleFeaturedSkillClick = (skill) => {
-    setSearchTerm(skill);
-    setActiveTab('discover');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -317,6 +348,12 @@ function App() {
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                     {currentUser.name.charAt(0).toUpperCase()}
                   </div>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                  >
+                    Logout
+                  </button>
                 </div>
               ) : (
                 <div className="flex space-x-3">
@@ -437,22 +474,6 @@ function App() {
         {/* Discover Tab */}
         {(!currentUser || activeTab === 'discover') && (
           <>
-            {/* Featured Skills */}
-            <div className="mb-8 p-6 bg-white rounded-lg shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-700 mb-4 text-center">Popular Skills</h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                {featuredSkills.map(skill => (
-                  <button
-                    key={skill}
-                    onClick={() => handleFeaturedSkillClick(skill)}
-                    className="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-full font-medium transition-colors duration-200"
-                  >
-                    {skill}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Search */}
             <SearchFilters
               searchTerm={searchTerm}

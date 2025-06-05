@@ -23,7 +23,9 @@ const ReviewsManager = ({ currentUser }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`/api/reviews/user/${currentUser.id}?as_reviewee=${activeTab === 'received'}`);
+      const response = await fetch(`/api/reviews/user/${currentUser.id}?as_reviewee=${activeTab === 'received'}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setReviews(data.reviews || []);
     } catch (error) {
@@ -35,7 +37,9 @@ const ReviewsManager = ({ currentUser }) => {
 
   const fetchReviewStats = async () => {
     try {
-      const response = await fetch(`/api/reviews/stats/${currentUser.id}`);
+      const response = await fetch(`/api/reviews/stats/${currentUser.id}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setReviewStats(data.stats);
     } catch (error) {
@@ -55,6 +59,7 @@ const ReviewsManager = ({ currentUser }) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           reviewerId: currentUser.id,
           ...newReview

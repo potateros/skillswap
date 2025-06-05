@@ -26,7 +26,9 @@ const SmartMatching = ({ currentUser, onSendRequest }) => {
       if (filters.minRating) queryParams.append('min_rating', filters.minRating);
       queryParams.append('limit', '10');
 
-      const response = await fetch(`/api/matching/find/${currentUser.id}?${queryParams}`);
+      const response = await fetch(`/api/matching/find/${currentUser.id}?${queryParams}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setMatches(data.matches || []);
     } catch (error) {
@@ -38,7 +40,9 @@ const SmartMatching = ({ currentUser, onSendRequest }) => {
 
   const getRecommendations = async () => {
     try {
-      const response = await fetch(`/api/matching/recommendations/${currentUser.id}`);
+      const response = await fetch(`/api/matching/recommendations/${currentUser.id}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setRecommendations(data.recommendations || []);
     } catch (error) {

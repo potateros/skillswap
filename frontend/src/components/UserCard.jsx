@@ -1,9 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const UserCard = ({ user, onConnect, currentUserId }) => {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState('');
   const [message, setMessage] = useState('');
+  const [reviewStats, setReviewStats] = useState(null);
+  const [recentReviews, setRecentReviews] = useState([]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserReviewStats();
+      fetchRecentReviews();
+    }
+  }, [user?.id]);
+
+  const fetchUserReviewStats = async () => {
+    try {
+      const response = await fetch(`/api/reviews/stats/${user.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setReviewStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching review stats:', error);
+    }
+  };
+
+  const fetchRecentReviews = async () => {
+    try {
+      const response = await fetch(`/api/reviews/user/${user.id}?as_reviewee=true`);
+      if (response.ok) {
+        const data = await response.json();
+        // Get the 2 most recent reviews
+        setRecentReviews(data.reviews?.slice(0, 2) || []);
+      }
+    } catch (error) {
+      console.error('Error fetching recent reviews:', error);
+    }
+  };
 
   const handleConnect = () => {
     if (!selectedSkill) return;
@@ -23,6 +57,21 @@ const UserCard = ({ user, onConnect, currentUserId }) => {
     }
   };
 
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+        ⭐
+      </span>
+    ));
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
@@ -33,10 +82,20 @@ const UserCard = ({ user, onConnect, currentUserId }) => {
           <div className="flex-1">
             <h2 className="text-xl font-semibold text-gray-800">{user.name || 'Unnamed User'}</h2>
             <p className="text-sm text-gray-600">{user.location || 'Location not specified'}</p>
-            <div className="flex items-center mt-1">
+            <div className="flex items-center justify-between mt-1">
               <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
                 {user.time_credits || 0} credits
               </span>
+              {reviewStats && reviewStats.averageRating > 0 && (
+                <div className="flex items-center">
+                  <div className="flex items-center mr-1">
+                    {renderStars(Math.round(reviewStats.averageRating))}
+                  </div>
+                  <span className="text-xs text-gray-600">
+                    {reviewStats.averageRating.toFixed(1)} ({reviewStats.totalReviews})
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -98,6 +157,34 @@ const UserCard = ({ user, onConnect, currentUserId }) => {
             )}
           </div>
         </div>
+
+        {/* Recent Reviews Section */}
+        {recentReviews.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Reviews:</h3>
+            <div className="space-y-2">
+              {recentReviews.map(review => (
+                <div key={review.id} className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <div className="flex mr-2">
+                        {renderStars(review.rating)}
+                      </div>
+                      <span className="text-xs text-gray-600">by {review.reviewer.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500">{formatDate(review.createdAt)}</span>
+                  </div>
+                  {review.skillName && (
+                    <div className="text-xs text-blue-600 mb-1">Skill: {review.skillName}</div>
+                  )}
+                  {review.comment && (
+                    <p className="text-xs text-gray-700 line-clamp-2">"{review.comment}"</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {currentUserId && currentUserId !== user.id && user.skills_offer?.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-200">

@@ -30,8 +30,8 @@ const SkillsManager = ({ userId, userSkills, onSkillAdded, onClose }) => {
   const fetchSkillsAndCategories = async () => {
     try {
       const [skillsRes, categoriesRes] = await Promise.all([
-        fetch('/api/skills'),
-        fetch('/api/skills/categories')
+        fetch('/api/skills', { credentials: 'include' }),
+        fetch('/api/skills/categories', { credentials: 'include' })
       ]);
       
       if (skillsRes.ok && categoriesRes.ok) {
@@ -59,6 +59,7 @@ const SkillsManager = ({ userId, userSkills, onSkillAdded, onClose }) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           skillName: selectedSkill.name,
           type: newSkill.type,
