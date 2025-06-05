@@ -35,7 +35,7 @@ export class SkillExchangeRequest {
 
   @Column({ nullable: true })
   @IsOptional()
-  skill_offered_id: number;
+  skill_offered_id?: number;
 
   @Column()
   @IsNotEmpty()
@@ -43,7 +43,7 @@ export class SkillExchangeRequest {
 
   @Column({ type: 'text', nullable: true })
   @IsOptional()
-  message: string;
+  message?: string;
 
   @Column({
     type: 'enum',

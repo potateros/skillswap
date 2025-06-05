@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsOptional, IsIn, IsInt, Min, Max, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { SkillType, ProficiencyLevel } from '../entities/UserSkill';
 
 export class CreateUserSkillDTO {
@@ -14,6 +15,7 @@ export class CreateUserSkillDTO {
   proficiencyLevel?: ProficiencyLevel;
 
   @IsOptional()
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
   @IsInt()
   @Min(0)
   @Max(50)

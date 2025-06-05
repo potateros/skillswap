@@ -285,7 +285,7 @@ export class MatchingService {
         .addSelect('COUNT(*)', 'skillCount')
         .where('userSkill.type = :type', { type: 'offer' })
         .groupBy('skill.name')
-        .orderBy('skillCount', 'DESC')
+        .orderBy('"skillCount"', 'DESC')
         .limit(20)
         .getRawMany();
 

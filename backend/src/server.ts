@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimitConfig, helmetConfig, sanitizeInput } from './middleware/security';
+import { authMiddleware } from './middleware/auth';
 import logger from './utils/logger';
 
 // Import routes
@@ -34,8 +36,14 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Cookie parsing middleware
+app.use(cookieParser());
+
 // Input sanitization
 app.use(sanitizeInput);
+
+// Authentication middleware
+app.use(authMiddleware);
 
 // Health check endpoint
 app.get('/', (req, res) => {

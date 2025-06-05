@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { UserService } from '../services/UserService';
 import { SkillService } from '../services/SkillService';
+import { ExchangeRequestService } from '../services/ExchangeRequestService';
 import { validationMiddleware } from '../middleware/validation';
 import { asyncHandler } from '../middleware/errorHandler';
 import { authRateLimitConfig } from '../middleware/security';
+import { createSession, destroySession } from '../middleware/auth';
 import { CreateUserDTO, LoginUserDTO, UpdateUserDTO } from '../dto/UserDTO';
 import { CreateUserSkillDTO } from '../dto/UserSkillDTO';
 import { CreateSkillExchangeRequestDTO, UpdateSkillExchangeRequestDTO } from '../dto/SkillExchangeRequestDTO';
@@ -11,6 +13,7 @@ import { CreateSkillExchangeRequestDTO, UpdateSkillExchangeRequestDTO } from '..
 const router = Router();
 const userService = new UserService();
 const skillService = new SkillService();
+const exchangeRequestService = new ExchangeRequestService();
 
 // User Login
 router.post('/login', 
@@ -18,6 +21,16 @@ router.post('/login',
   validationMiddleware(LoginUserDTO),
   asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.loginUser(req.body);
+    
+    // Create session and set cookie
+    const sessionId = createSession(user.id);
+    res.cookie('sessionId', sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
     res.json(user);
   })
 );
@@ -28,7 +41,39 @@ router.post('/',
   validationMiddleware(CreateUserDTO),
   asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.createUser(req.body);
+    
+    // Create session and set cookie for new users
+    const sessionId = createSession(user.id);
+    res.cookie('sessionId', sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
     res.status(201).json(user);
+  })
+);
+
+// Get current user
+router.get('/me',
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    res.json(req.user);
+  })
+);
+
+// User Logout
+router.post('/logout',
+  asyncHandler(async (req: Request, res: Response) => {
+    const sessionId = req.cookies.sessionId;
+    if (sessionId) {
+      destroySession(sessionId);
+      res.clearCookie('sessionId');
+    }
+    res.json({ message: 'Logged out successfully' });
   })
 );
 
@@ -36,6 +81,14 @@ router.post('/',
 router.get('/', 
   asyncHandler(async (req: Request, res: Response) => {
     const users = await userService.getAllUsers();
+    res.json(users);
+  })
+);
+
+// Get all users with their skills (optimized endpoint)
+router.get('/with-skills', 
+  asyncHandler(async (req: Request, res: Response) => {
+    const users = await userService.getAllUsersWithSkills();
     res.json(users);
   })
 );
@@ -126,28 +179,59 @@ router.get('/search/by-skill',
   })
 );
 
-// Exchange request endpoints would go here
-// For now, keeping them simple without full implementation
+// Create skill exchange request
 router.post('/:userId/exchange-requests',
   validationMiddleware(CreateSkillExchangeRequestDTO),
   asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Implement with ExchangeRequestService
-    res.status(501).json({ error: 'Exchange requests not implemented yet' });
+    const { userId } = req.params;
+    const userIdInt = parseInt(userId);
+    
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    const exchangeRequest = await exchangeRequestService.createExchangeRequest(userIdInt, req.body);
+    res.status(201).json(exchangeRequest);
   })
 );
 
+// Get exchange requests for a user
 router.get('/:userId/exchange-requests',
   asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Implement with ExchangeRequestService
-    res.status(501).json({ error: 'Exchange requests not implemented yet' });
+    const { userId } = req.params;
+    const { type } = req.query; // 'sent' or 'received'
+
+    const userIdInt = parseInt(userId);
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    const requests = await exchangeRequestService.getExchangeRequests(
+      userIdInt, 
+      type as 'sent' | 'received' | undefined
+    );
+    res.json(requests);
   })
 );
 
+// Update exchange request status
 router.put('/:userId/exchange-requests/:requestId',
   validationMiddleware(UpdateSkillExchangeRequestDTO),
   asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Implement with ExchangeRequestService
-    res.status(501).json({ error: 'Exchange requests not implemented yet' });
+    const { userId, requestId } = req.params;
+    const userIdInt = parseInt(userId);
+    const requestIdInt = parseInt(requestId);
+    
+    if (isNaN(userIdInt) || isNaN(requestIdInt)) {
+      return res.status(400).json({ error: 'Invalid user ID or request ID' });
+    }
+
+    const updatedRequest = await exchangeRequestService.updateExchangeRequest(
+      requestIdInt, 
+      userIdInt, 
+      req.body
+    );
+    res.json(updatedRequest);
   })
 );
 

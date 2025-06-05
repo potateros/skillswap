@@ -70,6 +70,57 @@ export class UserService {
     }
   }
 
+  async getAllUsersWithSkills(): Promise<any[]> {
+    try {
+      const users = await this.userRepository.find({
+        relations: ['user_skills', 'user_skills.skill', 'user_skills.skill.category'],
+        order: { created_at: 'DESC' }
+      });
+
+      // Transform to match frontend expectations
+      return users.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        bio: user.bio,
+        location: user.location,
+        time_credits: user.time_credits,
+        created_at: user.created_at,
+        skills_offer: user.user_skills
+          ? user.user_skills
+              .filter(us => us.type === 'offer')
+              .map(us => ({
+                skill_id: us.skill.id,
+                skill_name: us.skill.name,
+                skill_description: us.skill.description,
+                type: us.type,
+                proficiency_level: us.proficiency_level,
+                years_experience: us.years_experience,
+                description: us.description,
+                category_name: us.skill.category?.name
+              }))
+          : [],
+        skills_seek: user.user_skills
+          ? user.user_skills
+              .filter(us => us.type === 'seek')
+              .map(us => ({
+                skill_id: us.skill.id,
+                skill_name: us.skill.name,
+                skill_description: us.skill.description,
+                type: us.type,
+                proficiency_level: us.proficiency_level,
+                years_experience: us.years_experience,
+                description: us.description,
+                category_name: us.skill.category?.name
+              }))
+          : []
+      }));
+    } catch (error) {
+      logger.error('Error fetching users with skills', error);
+      throw createAppError('Failed to fetch users with skills', 500);
+    }
+  }
+
   async getUserById(id: number): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
