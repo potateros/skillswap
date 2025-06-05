@@ -64,7 +64,7 @@ app.use('/api/matching', matchingRoutes);
 
 // Comprehensive health check endpoint
 app.get('/api/health', async (req, res) => {
-  const healthCheck = {
+  const healthCheck: any = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
